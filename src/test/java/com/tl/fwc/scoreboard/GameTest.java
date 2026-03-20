@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
+import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class GameTest {
 
@@ -40,6 +43,22 @@ class GameTest {
     assertThat(game1.compareTo(game2)).isEqualTo(1);
     assertThat(game2.compareTo(game1)).isEqualTo(-1);
     assertThat(game2.compareTo(game3)).isEqualTo(0);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"  ", "\t", "\n"})
+  void shouldRejectStartingGameForHomeTeamWithInvalidName(String teamName) {
+    assertThatThrownBy(() -> Game.create(teamName, "Poland"))
+        .isInstanceOf(InvalidTeamNameException.class);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"  ", "\t", "\n"})
+  void shouldRejectStartingGameForAwayTeamWithInvalidName(String teamName) {
+    assertThatThrownBy(() -> Game.create("Poland", teamName))
+        .isInstanceOf(InvalidTeamNameException.class);
   }
 
   @Test

@@ -1,6 +1,8 @@
 package com.tl.fwc.scoreboard;
 
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
+import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,9 +37,14 @@ public class Game implements Comparable<Game> {
 
   public static Game create(String homeTeam, String awayTeam) {
     return Game.builder()
-        .homeTeam(homeTeam)
-        .awayTeam(awayTeam)
+        .homeTeam(trimTeamName(homeTeam))
+        .awayTeam(trimTeamName(awayTeam))
         .build();
+  }
+
+  private static String trimTeamName(String teamName) {
+    return Optional.ofNullable(StringUtils.trimToNull(teamName))
+        .orElseThrow(() -> new InvalidTeamNameException(teamName));
   }
 
   public Game updateScore(int newHomeTeamScore, int newAwayTeamScore) {
