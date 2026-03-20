@@ -1,13 +1,17 @@
 package com.tl.fwc.scoreboard;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tl.fwc.scoreboard.exceptions.GameNotExistsException;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
+import com.tl.fwc.scoreboard.exceptions.TeamAlreadyPlaysGameException;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 
 public class ScoreboardTest {
@@ -19,6 +23,18 @@ public class ScoreboardTest {
     assertThat(game).isNotNull();
   }
 
+  @ParameterizedTest
+  @CsvSource(value = {
+      "Poland:Portugal",
+      "Sweden:Norway"
+  }, delimiter = ':')
+  void shouldNotStartNewGameWithAlreadyPlayingTeam(String homeTeam, String awayTeam) {
+    Scoreboard scoreboard = new Scoreboard();
+    scoreboard.startGame("Poland", "Norway");
+    assertThatThrownBy(() -> scoreboard.startGame(homeTeam, awayTeam))
+        .isInstanceOf(TeamAlreadyPlaysGameException.class);
+  }
+
   @Test
   void shouldFinishStartedGame() {
     Scoreboard scoreboard = new Scoreboard();
@@ -26,6 +42,18 @@ public class ScoreboardTest {
     Game finishedGame = scoreboard.finishGame(startedGame.id());
     assertThat(finishedGame).isNotNull();
     assertThat(finishedGame).isEqualTo(startedGame);
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+      "Poland:Portugal",
+      "Sweden:Norway"
+  }, delimiter = ':')
+  void shouldStartNewGameWhenTeamFinishedPreviousMatch(String homeTeam, String awayTeam) {
+    Scoreboard scoreboard = new Scoreboard();
+    Game game = scoreboard.startGame("Poland", "Norway");
+    scoreboard.finishGame(game.id());
+    assertThatNoException().isThrownBy(() -> scoreboard.startGame("Poland", "Norway"));
   }
 
   @Test
