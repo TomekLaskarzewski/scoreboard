@@ -21,6 +21,28 @@ class GameTest {
   }
 
   @Test
+  void shouldIdentifyTheSameGameByPlayingTeams() {
+    Game game1 = Game.create("Poland", "Norway");
+    Game game2 = Game.create("Poland", "Norway");
+    Game game3 = Game.create("Norway", "Poland");
+    assertThat(game1).isEqualTo(game2);
+    assertThat(game1).isNotEqualTo(game3);
+  }
+
+  @Test
+  void shouldProvideGameComparatorOnTotalScore() {
+    Game game1 = Game.create("Poland", "Norway")
+        .updateScore(1,0);
+    Game game2 = Game.create("Poland", "Norway");
+    Game game3 = Game.create("Norway", "Poland");
+
+    // total score of game1 (1) is greater than game2 (0)
+    assertThat(game1.compareTo(game2)).isEqualTo(1);
+    assertThat(game2.compareTo(game1)).isEqualTo(-1);
+    assertThat(game2.compareTo(game3)).isEqualTo(0);
+  }
+
+  @Test
   void shouldReturnNewGameInstanceWithUpdatedScore() {
     Game game = Game.create("Poland", "Norway");
     Game updatedGame = game.updateScore(1, 1);
@@ -42,6 +64,4 @@ class GameTest {
     assertThatThrownBy(() -> game.updateScore(homeTeamScore, awayTeamScore))
       .isInstanceOf(InvalidScoreException.class);
   }
-
-
 }

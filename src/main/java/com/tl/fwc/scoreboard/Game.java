@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -17,11 +18,14 @@ import lombok.experimental.Accessors;
 @Getter
 @Accessors(fluent = true)
 @ToString
-public class Game {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Game implements Comparable<Game> {
 
   @Default
   private UUID id = UUID.randomUUID();
+  @EqualsAndHashCode.Include
   private String homeTeam;
+  @EqualsAndHashCode.Include
   private String awayTeam;
   @Default
   private int homeTeamScore = 0;
@@ -44,5 +48,14 @@ public class Game {
         .homeTeamScore(newHomeTeamScore)
         .awayTeamScore(newAwayTeamScore)
         .build();
+  }
+
+  private int totalScore() {
+    return homeTeamScore + awayTeamScore;
+  }
+
+  @Override
+  public int compareTo(Game o) {
+    return Integer.compare(this.totalScore(), o.totalScore());
   }
 }
