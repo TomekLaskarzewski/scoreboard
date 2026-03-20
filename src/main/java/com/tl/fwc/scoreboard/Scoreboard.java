@@ -1,16 +1,18 @@
 package com.tl.fwc.scoreboard;
 
 import com.tl.fwc.scoreboard.exceptions.GameNotExistsException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Scoreboard {
 
-  private final Map<UUID, Game> activeGames = new ConcurrentHashMap<>();
+  private final Map<UUID, Game> activeGames = Collections.synchronizedMap(new LinkedHashMap<>());
 
   public Game startGame(String homeTeam, String awayTeam) {
     Game game = Game.create(homeTeam, awayTeam);
@@ -37,5 +39,9 @@ public class Scoreboard {
       log.info("Updated game score: {}", updatedGame);
       return updatedGame;
     });
+  }
+
+  public List<Game> gamesByTotalScore() {
+    return activeGames.values().stream().sorted().toList().reversed();
   }
 }

@@ -57,10 +57,7 @@ class GameTest {
   @ParameterizedTest
   @CsvSource(value = {"-1:0", "0:-1", "0:0"}, delimiter = ':')
   void shouldRejectUpdateWhichReduceScore(int homeTeamScore, int awayTeamScore) {
-    Game game = Game.create("Poland", "Norway").toBuilder()
-        .homeTeamScore(1)
-        .awayTeamScore(1)
-        .build();
+    Game game = Game.create("Poland", "Norway").updateScore(1, 1);
     assertThatThrownBy(() -> game.updateScore(homeTeamScore, awayTeamScore))
       .isInstanceOf(InvalidScoreException.class);
   }
