@@ -3,6 +3,7 @@ package com.tl.fwc.scoreboard;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.tl.fwc.scoreboard.Game.Players;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,8 @@ class GameTest {
   @Test
   void shouldCreateNewGame() {
     Game game = Game.create("Poland", "Norway");
-    assertThat(game.id()).isNotNull();
+    Players players = Game.players("Poland", "Norway");
+    assertThat(game.players()).isEqualTo(players);
     assertThat(game.homeTeam()).isEqualTo("Poland");
     assertThat(game.awayTeam()).isEqualTo("Norway");
     assertThat(game.homeTeamScore()).isEqualTo(0);
@@ -64,9 +66,10 @@ class GameTest {
   @Test
   void shouldReturnNewGameInstanceWithUpdatedScore() {
     Game game = Game.create("Poland", "Norway");
+    Players players = Game.players("Poland", "Norway");
     Game updatedGame = game.updateScore(1, 1);
     assertThat(updatedGame).isNotSameAs(game);
-    assertThat(game.id()).isEqualTo(updatedGame.id());
+    assertThat(game.players()).isEqualTo(players);
     assertThat(game.homeTeamScore()).isEqualTo(0);
     assertThat(game.awayTeamScore()).isEqualTo(0);
     assertThat(updatedGame.homeTeamScore()).isEqualTo(1);

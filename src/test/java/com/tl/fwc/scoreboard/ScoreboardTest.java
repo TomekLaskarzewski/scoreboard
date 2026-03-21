@@ -8,7 +8,6 @@ import com.tl.fwc.scoreboard.exceptions.GameNotExistsException;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.TeamAlreadyPlaysGameException;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,7 +38,7 @@ public class ScoreboardTest {
   void shouldFinishStartedGame() {
     Scoreboard scoreboard = new Scoreboard();
     Game startedGame = scoreboard.startGame("Poland", "Norway");
-    Game finishedGame = scoreboard.finishGame(startedGame.id());
+    Game finishedGame = scoreboard.finishGame("Poland", "Norway");
     assertThat(finishedGame).isNotNull();
     assertThat(finishedGame).isEqualTo(startedGame);
   }
@@ -52,14 +51,14 @@ public class ScoreboardTest {
   void shouldStartNewGameWhenTeamFinishedPreviousMatch(String homeTeam, String awayTeam) {
     Scoreboard scoreboard = new Scoreboard();
     Game game = scoreboard.startGame("Poland", "Norway");
-    scoreboard.finishGame(game.id());
+    scoreboard.finishGame("Poland", "Norway");
     assertThatNoException().isThrownBy(() -> scoreboard.startGame("Poland", "Norway"));
   }
 
   @Test
   void shouldThrowExceptionWhenTryingToFinishGameNotPresentInScoreboard() {
     Scoreboard scoreboard = new Scoreboard();
-    assertThatThrownBy(() -> scoreboard.finishGame(UUID.randomUUID()))
+    assertThatThrownBy(() -> scoreboard.finishGame("Poland", "Norway"))
         .isInstanceOf(GameNotExistsException.class);
   }
 
@@ -67,7 +66,7 @@ public class ScoreboardTest {
   void shouldUpdateScoreOfStartedGame() {
     Scoreboard scoreboard = new Scoreboard();
     Game startedGame = scoreboard.startGame("Poland", "Norway");
-    Game updatedGame = scoreboard.updateScore(startedGame.id(), 1, 1);
+    Game updatedGame = scoreboard.updateScore("Poland", "Norway", 1, 1);
     assertThat(updatedGame).isNotNull();
     assertThat(updatedGame.homeTeamScore()).isEqualTo(1);
     assertThat(updatedGame.awayTeamScore()).isEqualTo(1);
@@ -76,7 +75,7 @@ public class ScoreboardTest {
   @Test
   void shouldThrowExceptionWhenUpdatingScoreOfGameThatHasNotStarted() {
     Scoreboard scoreboard = new Scoreboard();
-    assertThatThrownBy(() -> scoreboard.updateScore(UUID.randomUUID(), 1, 1))
+    assertThatThrownBy(() -> scoreboard.updateScore("Poland", "Norway", 1, 1))
         .isInstanceOf(GameNotExistsException.class);
   }
 
@@ -84,9 +83,9 @@ public class ScoreboardTest {
   void shouldThrowExceptionWhenUpdatingScoreWithInvalidValues() {
     Scoreboard scoreboard = new Scoreboard();
     Game game = scoreboard.startGame("Poland", "Norway");
-    scoreboard.updateScore(game.id(), 1, 1);
+    scoreboard.updateScore("Poland", "Norway", 1, 1);
 
-    assertThatThrownBy(() -> scoreboard.updateScore(game.id(), 0, 0))
+    assertThatThrownBy(() -> scoreboard.updateScore("Poland", "Norway", 0, 0))
         .isInstanceOf(InvalidScoreException.class);
   }
 
@@ -126,6 +125,6 @@ C -> 5. Germany 2 - France 2
   private Game addGame(Scoreboard scoreboard,
       String homeTeam, String awayTeam, int homeScore, int awayScore) {
     Game game = scoreboard.startGame(homeTeam, awayTeam);
-    return scoreboard.updateScore(game.id(), homeScore, awayScore);
+    return scoreboard.updateScore(homeTeam, awayTeam, homeScore, awayScore);
   }
 }

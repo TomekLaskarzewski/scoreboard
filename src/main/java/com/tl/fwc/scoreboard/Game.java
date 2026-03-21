@@ -2,44 +2,49 @@ package com.tl.fwc.scoreboard;
 
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
+import jakarta.annotation.Nonnull;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lombok.experimental.Accessors;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PACKAGE, toBuilder = true) // package private for testing
+@Builder(toBuilder = true)
 @Getter
 @Accessors(fluent = true)
-@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Game implements Comparable<Game> {
 
-  @Default
-  private UUID id = UUID.randomUUID();
+  public record Players(String homeTeam, String awayTeam) {
+
+    @Override
+    @Nonnull
+    public String toString() {
+      return homeTeam + " - " + awayTeam;
+    }
+  }
+
   @EqualsAndHashCode.Include
-  private String homeTeam;
-  @EqualsAndHashCode.Include
-  private String awayTeam;
+  @Delegate
+  private final Players players;
   @Default
-  private int homeTeamScore = 0;
+  private final int homeTeamScore = 0;
   @Default
-  private int awayTeamScore = 0;
+  private final int awayTeamScore = 0;
+
+  public static Players players(String homeTeam, String awayTeam) {
+    return new Players(homeTeam, awayTeam);
+  }
 
   public static Game create(String homeTeam, String awayTeam) {
-    return Game.builder()
-        .homeTeam(trimTeamName(homeTeam))
-        .awayTeam(trimTeamName(awayTeam))
-        .build();
+    Players players = players(trimTeamName(homeTeam), trimTeamName(awayTeam));
+    return Game.builder().players(players).build();
   }
 
   private static String trimTeamName(String teamName) {
@@ -60,6 +65,11 @@ public class Game implements Comparable<Game> {
 
   private int totalScore() {
     return homeTeamScore + awayTeamScore;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s: %s - %s", players, homeTeamScore, awayTeamScore);
   }
 
   @Override

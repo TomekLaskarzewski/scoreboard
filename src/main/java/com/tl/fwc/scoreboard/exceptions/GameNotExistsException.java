@@ -1,10 +1,10 @@
 package com.tl.fwc.scoreboard.exceptions;
 
-import java.util.UUID;
+import com.tl.fwc.scoreboard.Game.Players;
 
 public class GameNotExistsException extends RuntimeException{
 
-  public GameNotExistsException(UUID gameId) {
-    super("Game not exists: " + gameId);
+  public GameNotExistsException(Players players) {
+    super("Game not exists: " + players);
   }
 }
