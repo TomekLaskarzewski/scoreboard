@@ -21,8 +21,8 @@ class GameTest {
     assertThat(game.players()).isEqualTo(players);
     assertThat(game.homeTeam()).isEqualTo("Poland");
     assertThat(game.awayTeam()).isEqualTo("Norway");
-    assertThat(game.homeTeamScore()).isEqualTo(0);
-    assertThat(game.awayTeamScore()).isEqualTo(0);
+    assertThat(game.homeTeamScore()).isZero();
+    assertThat(game.awayTeamScore()).isZero();
   }
 
   @Test
@@ -30,8 +30,9 @@ class GameTest {
     Game game1 = Game.create("Poland", "Norway");
     Game game2 = Game.create("Poland", "Norway");
     Game game3 = Game.create("Norway", "Poland");
-    assertThat(game1).isEqualTo(game2);
-    assertThat(game1).isNotEqualTo(game3);
+    assertThat(game1)
+        .isEqualTo(game2)
+        .isNotEqualTo(game3);
   }
 
   @Test
@@ -44,7 +45,7 @@ class GameTest {
     // total score of game1 (1) is greater than game2 (0)
     assertThat(game1.compareTo(game2)).isEqualTo(1);
     assertThat(game2.compareTo(game1)).isEqualTo(-1);
-    assertThat(game2.compareTo(game3)).isEqualTo(0);
+    assertThat(game2).isEqualByComparingTo((game3));
   }
 
   @ParameterizedTest
@@ -70,8 +71,8 @@ class GameTest {
     Game updatedGame = game.updateScore(1, 1);
     assertThat(updatedGame).isNotSameAs(game);
     assertThat(game.players()).isEqualTo(players);
-    assertThat(game.homeTeamScore()).isEqualTo(0);
-    assertThat(game.awayTeamScore()).isEqualTo(0);
+    assertThat(game.homeTeamScore()).isZero();
+    assertThat(game.awayTeamScore()).isZero();
     assertThat(updatedGame.homeTeamScore()).isEqualTo(1);
     assertThat(updatedGame.awayTeamScore()).isEqualTo(1);
   }

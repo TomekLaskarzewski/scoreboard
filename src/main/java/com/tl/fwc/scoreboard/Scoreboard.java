@@ -32,9 +32,11 @@ public class Scoreboard {
         if (teams.add(game.awayTeam())) {
           return;
         }
+        log.warn("Away team '{}' plays another game", game.awayTeam());
         teams.remove(game.homeTeam());
         throw new TeamAlreadyPlaysGameException(game.awayTeam());
       }
+      log.warn("Home team '{}' plays another game", game.homeTeam());
       throw new TeamAlreadyPlaysGameException(game.homeTeam());
     }
   }

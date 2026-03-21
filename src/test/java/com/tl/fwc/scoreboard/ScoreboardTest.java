@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 
-public class ScoreboardTest {
+class ScoreboardTest {
 
   @Test
   void shouldStartNewGame() {
@@ -39,20 +39,22 @@ public class ScoreboardTest {
     Scoreboard scoreboard = new Scoreboard();
     Game startedGame = scoreboard.startGame("Poland", "Norway");
     Game finishedGame = scoreboard.finishGame("Poland", "Norway");
-    assertThat(finishedGame).isNotNull();
-    assertThat(finishedGame).isEqualTo(startedGame);
+    assertThat(finishedGame)
+        .isNotNull()
+        .isEqualTo(startedGame);
   }
 
   @ParameterizedTest
   @CsvSource(value = {
       "Poland:Portugal",
-      "Sweden:Norway"
+      "Sweden:Norway",
+      "Poland:Norway"
   }, delimiter = ':')
   void shouldStartNewGameWhenTeamFinishedPreviousMatch(String homeTeam, String awayTeam) {
     Scoreboard scoreboard = new Scoreboard();
-    Game game = scoreboard.startGame("Poland", "Norway");
+    scoreboard.startGame("Poland", "Norway");
     scoreboard.finishGame("Poland", "Norway");
-    assertThatNoException().isThrownBy(() -> scoreboard.startGame("Poland", "Norway"));
+    assertThatNoException().isThrownBy(() -> scoreboard.startGame(homeTeam, awayTeam));
   }
 
   @Test
@@ -65,7 +67,7 @@ public class ScoreboardTest {
   @Test
   void shouldUpdateScoreOfStartedGame() {
     Scoreboard scoreboard = new Scoreboard();
-    Game startedGame = scoreboard.startGame("Poland", "Norway");
+    scoreboard.startGame("Poland", "Norway");
     Game updatedGame = scoreboard.updateScore("Poland", "Norway", 1, 1);
     assertThat(updatedGame).isNotNull();
     assertThat(updatedGame.homeTeamScore()).isEqualTo(1);
@@ -82,7 +84,7 @@ public class ScoreboardTest {
   @Test
   void shouldThrowExceptionWhenUpdatingScoreWithInvalidValues() {
     Scoreboard scoreboard = new Scoreboard();
-    Game game = scoreboard.startGame("Poland", "Norway");
+    scoreboard.startGame("Poland", "Norway");
     scoreboard.updateScore("Poland", "Norway", 1, 1);
 
     assertThatThrownBy(() -> scoreboard.updateScore("Poland", "Norway", 0, 0))
@@ -118,13 +120,13 @@ C -> 5. Germany 2 - France 2
     List<Game> expectedGamesOrder = List.of(gameD, gameB, gameA, gameE, gameC);
 
     List<Game> games = scoreboard.gamesByTotalScore();
-    assertThat(games.equals(expectedGamesOrder)).isTrue();
+    assertThat(games).isEqualTo(expectedGamesOrder);
   }
 
   // add game to the scoreboard with the desired score and returns that game
   private Game addGame(Scoreboard scoreboard,
       String homeTeam, String awayTeam, int homeScore, int awayScore) {
-    Game game = scoreboard.startGame(homeTeam, awayTeam);
+    scoreboard.startGame(homeTeam, awayTeam);
     return scoreboard.updateScore(homeTeam, awayTeam, homeScore, awayScore);
   }
 }
