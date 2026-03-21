@@ -3,6 +3,7 @@ package com.tl.fwc.scoreboard;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
 import jakarta.annotation.Nonnull;
+import java.util.Comparator;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 @Accessors(fluent = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Game implements Comparable<Game> {
+public class Game {
 
   public record Players(String homeTeam, String awayTeam) {
 
@@ -37,6 +38,9 @@ public class Game implements Comparable<Game> {
   private final int homeTeamScore = 0;
   @Default
   private final int awayTeamScore = 0;
+
+  public static final Comparator<Game> TOTAL_SCORE_COMPARATOR_ASC =
+      Comparator.comparing(Game::totalScore);
 
   public static Players players(String homeTeam, String awayTeam) {
     return new Players(homeTeam, awayTeam);
@@ -70,10 +74,5 @@ public class Game implements Comparable<Game> {
   @Override
   public String toString() {
     return String.format("%s: %s - %s", players, homeTeamScore, awayTeamScore);
-  }
-
-  @Override
-  public int compareTo(Game o) {
-    return Integer.compare(this.totalScore(), o.totalScore());
   }
 }

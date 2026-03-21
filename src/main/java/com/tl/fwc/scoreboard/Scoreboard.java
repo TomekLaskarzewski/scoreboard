@@ -71,6 +71,9 @@ public class Scoreboard {
   }
 
   public List<Game> gamesByTotalScore() {
-    return activeGames.values().stream().sorted().toList().reversed();
+    return activeGames.values().stream()
+        .sorted(Game.TOTAL_SCORE_COMPARATOR_ASC)
+        .toList()
+        .reversed();
   }
 }

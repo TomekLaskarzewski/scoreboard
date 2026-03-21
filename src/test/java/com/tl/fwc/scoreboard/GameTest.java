@@ -43,9 +43,9 @@ class GameTest {
     Game game3 = Game.create("Norway", "Poland");
 
     // total score of game1 (1) is greater than game2 (0)
-    assertThat(game1.compareTo(game2)).isEqualTo(1);
-    assertThat(game2.compareTo(game1)).isEqualTo(-1);
-    assertThat(game2).isEqualByComparingTo((game3));
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game1, game2)).isGreaterThan(0);
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game2, game1)).isLessThan(0);
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game2, game3)).isZero();
   }
 
   @ParameterizedTest
