@@ -17,7 +17,7 @@ class GameTest {
   @Test
   void shouldCreateNewGame() {
     Game game = Game.create("Poland", "Norway");
-    Players players = Game.players("Poland", "Norway");
+    Players players = new Players("Poland", "Norway");
     assertThat(game.players()).isEqualTo(players);
     assertThat(game.homeTeam()).isEqualTo("Poland");
     assertThat(game.awayTeam()).isEqualTo("Norway");
@@ -67,7 +67,7 @@ class GameTest {
   @Test
   void shouldReturnNewGameInstanceWithUpdatedScore() {
     Game game = Game.create("Poland", "Norway");
-    Players players = Game.players("Poland", "Norway");
+    Players players = new Players("Poland", "Norway");
     Game updatedGame = game.updateScore(1, 1);
     assertThat(updatedGame).isNotSameAs(game);
     assertThat(game.players()).isEqualTo(players);
