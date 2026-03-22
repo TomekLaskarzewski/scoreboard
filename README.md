@@ -6,6 +6,18 @@ The goal was not only to meet the functional requirements, but also to make clea
 
 ---
 
+## Build setup
+
+The project was initially bootstrapped using Spring Initializr to quickly generate a working Gradle setup and test environment.
+
+Although the implementation itself does not depend on Spring, Spring Boot dependencies were kept for convenience (dependency management and test setup).
+
+It also provides a straightforward starting point in case this project evolves into a Spring-based application.
+
+For a production-ready library, a lighter setup (plain Gradle with only required dependencies) would be more appropriate.
+
+---
+
 ## Key assumptions
 
 * Games are ordered by total score (descending)
