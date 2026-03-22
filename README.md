@@ -6,6 +6,13 @@ The goal was not only to meet the functional requirements, but also to make clea
 
 ---
 
+## Requirements
+
+This project requires **Java 17 or newer**.
+
+The solution uses modern Java language features (e.g. records), so it is not compatible with older Java versions.
+
+--- 
 ## Build setup
 
 The project was initially bootstrapped using Spring Initializr to quickly generate a working Gradle setup and test environment.

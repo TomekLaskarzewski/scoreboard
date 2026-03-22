@@ -9,9 +9,7 @@ version = '0.0.1-SNAPSHOT'
 description = 'Football World Cup Score Board'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    sourceCompatibility = '17'
 }
 
 configurations {
