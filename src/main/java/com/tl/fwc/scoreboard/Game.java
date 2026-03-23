@@ -3,6 +3,7 @@ package com.tl.fwc.scoreboard;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.InvalidTeamNameException;
 import jakarta.annotation.Nonnull;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import lombok.AccessLevel;
@@ -23,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>The identity of a game is defined by the participating teams ({@link Players}). Two games
  * with the same teams are considered equal regardless of their current score.
+ *
+ * <p>The game also stores its start time, which is used as a tie-breaker when sorting games with
+ * the same total score.
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
@@ -89,15 +93,24 @@ public class Game {
   private final int awayTeamScore = 0;
 
   /**
+   * Time when the game was started.
+   */
+  @Default
+  private final Instant startTime = Instant.now();
+
+  /**
    * Comparator for sorting games by total score in ascending order.
+   *
+   * <p>If total scores are equal, games are further ordered by start time in ascending order.
    */
   public static final Comparator<Game> TOTAL_SCORE_COMPARATOR_ASC =
-      Comparator.comparing(Game::totalScore);
+      Comparator.comparing(Game::totalScore)
+          .thenComparing(Game::startTime);
 
   /**
    * Creates a new game with initial score {@code 0 - 0}.
    *
-   * <p>Team names are validated and normalized (trimmed). Blank or null values are not allowed.
+   * <p>Team names are validated and normalized by {@link Players}.
    *
    * @param homeTeam name of the home team
    * @param awayTeam name of the away team

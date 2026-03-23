@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.tl.fwc.scoreboard.Game.Players;
 import com.tl.fwc.scoreboard.exceptions.GameNotExistsException;
 import com.tl.fwc.scoreboard.exceptions.InvalidScoreException;
 import com.tl.fwc.scoreboard.exceptions.TeamAlreadyPlaysGameException;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -108,14 +110,15 @@ C -> 5. Germany 2 - France 2
    */
   @Test
   void shouldReturnSummaryOfGamesByTotalScore() {
-    Scoreboard scoreboard = new Scoreboard();
+    Instant base = Instant.now();
+    Game gameA = createGame("Mexico", "Canada", 0, 5, base.plusMillis(0));
+    Game gameB = createGame("Spain", "Brazil", 10, 2, base.plusMillis(10));
+    Game gameC = createGame("Germany", "France", 2, 2, base.plusMillis(20));
+    Game gameD = createGame("Uruguay", "Italy", 6, 6, base.plusMillis(30));
+    Game gameE = createGame("Argentina", "Australia", 3, 1, base.plusMillis(40));
 
-    // start games and update their score to expected values
-    Game gameA = addGame(scoreboard, "Mexico", "Canada", 0, 5);
-    Game gameB = addGame(scoreboard, "Spain", "Brazil", 10, 2);
-    Game gameC = addGame(scoreboard, "Germany", "France", 2, 2);
-    Game gameD = addGame(scoreboard, "Uruguay", "Italy", 6, 6);
-    Game gameE = addGame(scoreboard, "Argentina", "Australia", 3, 1);
+    List<Game> startedGames = List.of(gameA, gameB, gameC, gameD, gameE);
+    Scoreboard scoreboard = new Scoreboard(startedGames);
 
     List<Game> expectedGamesOrder = List.of(gameD, gameB, gameA, gameE, gameC);
 
@@ -123,10 +126,12 @@ C -> 5. Germany 2 - France 2
     assertThat(games).isEqualTo(expectedGamesOrder);
   }
 
-  // add game to the scoreboard with the desired score and returns that game
-  private Game addGame(Scoreboard scoreboard,
-      String homeTeam, String awayTeam, int homeScore, int awayScore) {
-    scoreboard.startGame(homeTeam, awayTeam);
-    return scoreboard.updateScore(homeTeam, awayTeam, homeScore, awayScore);
+  private Game createGame(String homeTeam, String awayTeam, int homeScore, int awayScore, Instant startTime) {
+    return Game.builder()
+        .players(new Players(homeTeam, awayTeam))
+        .homeTeamScore(homeScore)
+        .awayTeamScore(awayScore)
+        .startTime(startTime)
+        .build();
   }
 }
