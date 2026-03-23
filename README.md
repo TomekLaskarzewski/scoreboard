@@ -8,11 +8,12 @@ The goal was not only to meet the functional requirements, but also to make clea
 
 ## Requirements
 
-This project requires **Java 17 or newer**.
+This project requires Java 17 or newer.
 
 The solution uses modern Java language features (e.g. records), so it is not compatible with older Java versions.
 
 --- 
+
 ## Build setup
 
 The project was initially bootstrapped using Spring Initializr to quickly generate a working Gradle setup and test environment.
@@ -36,53 +37,43 @@ For a production-ready library, a lighter setup (plain Gradle with only required
 
 ## Design overview
 
-The scoreboard is implemented as a single in-memory aggregate:
+The scoreboard is implemented as an in-memory model composed of:
 
 * `activeGames` — stores currently active games
 * `teams` — tracks teams already involved in a game
 
-Both structures are protected by a single lock to ensure consistency.
+`activeGames` is backed by `ConcurrentHashMap`, which allows concurrent score updates.
 
-### Why a single lock?
-
-Although finer-grained locking could improve concurrency, both collections represent a single domain concept (active games).
-
-Using multiple locks would:
-
-* introduce risk of inconsistent state
-* require careful lock ordering
-* potentially lead to deadlocks
-
-A single lock keeps the model simple and safe.
+A separate lock is used for lifecycle operations that must keep both internal structures consistent, such as:
+* starting a game
+* finishing a game
 
 ---
 
 ## Data structures
 
-A `LinkedHashMap` is used to store active games.
+A `ConcurrentHashMap` is used to store active games.
 
 This choice allows:
 
 * O(1) average-time access by key
-* preservation of insertion order
+* concurrent score updates
+* lock-free reads for scoreboard generation
 
-Insertion order is later used as a natural tie-breaker when sorting games with equal scores.
+Game ordering does not depend on map insertion order. Instead, it is derived explicitly from game data:
+* total score
+* game start time
 
 ---
 
 ## Ordering strategy
 
-The scoreboard is generated on demand:
+Games are ordered by:
 
-1. Games are sorted by total score (ascending)
-2. The result is reversed
+1. Total score (descending)
+2. Start time (most recently started game first for equal scores)
 
-Because sorting is stable, insertion order is preserved for games with equal scores.
-
-This avoids the need for:
-
-* additional fields (timestamps, sequence numbers)
-* maintaining a continuously sorted structure
+The implementation sorts games using an ascending comparator and then reverses the final result.
 
 ---
 
@@ -102,31 +93,33 @@ Benefits:
 
 ## Concurrency model
 
-All operations are synchronized using a single lock.
+The implementation uses a mixed concurrency model:
 
-This guarantees:
+* `ConcurrentHashMap` is used for active games
+* a dedicated lock protects operations that must keep `teams` and `activeGames` consistent
+  (starting and finishing games)
 
-* atomic updates across multiple structures
-* no intermediate inconsistent states
-* deterministic ordering of results
+This allows:
 
-### Why not snapshots?
+* concurrent score updates without global locking
+* lock-free read operations for the scoreboard view
 
-Snapshot-based reads were considered to reduce lock contention.
+The scoreboard view is generated from a weakly consistent snapshot of the current state:
 
-However, they allow situations where:
+* it does not block writes
+* it may reflect concurrent updates
+* it may contain a mix of slightly older and newer values
 
-* a newer result is returned before an older one
-* responses are not globally ordered
-
-This implementation favors consistency and predictability over maximum concurrency.
+Because `Game` is immutable, readers never observe partially updated objects.
 
 ---
 
 ## Complexity
 
-* Insert / update / remove: **O(1)** average
-* Scoreboard generation: **O(n log n)**
+* Start / update / finish operations: **O(1)** average for map access and update
+* Scoreboard generation: **O(n log n)** due to sorting
+
+This is a deliberate trade-off: writes remain simple, while ordering is computed on demand.
 
 ---
 
@@ -135,12 +128,14 @@ This implementation favors consistency and predictability over maximum concurren
 The implementation intentionally prioritizes:
 
 * simplicity
-* correctness
-* clarity of domain rules
+* correctness of domain rules
+* low-friction concurrent reads
+* clear separation between lifecycle consistency and scoreboard view generation
 
 over:
 
-* maximum throughput
-* advanced concurrent data structures
+* strict read consistency
+* maintaining a continuously sorted structure
+* more advanced synchronization strategies
 
-This makes the code easier to reason about and maintain.
+This keeps the implementation relatively simple while allowing concurrent updates and non-blocking reads.
