@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 description = 'Football World Cup Score Board'
 
 java {
-    sourceCompatibility = '17'
+    sourceCompatibility = '21'
 }
 
 configurations {

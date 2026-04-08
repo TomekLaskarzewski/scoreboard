@@ -40,7 +40,10 @@ class GameTest {
     Game game1 = Game.create("Poland", "Norway")
         .updateScore(1,0);
     Game game2 = Game.create("Poland", "Norway");
-    Game game3 = Game.create("Norway", "Poland");
+    Game game3 = Game.create("Norway", "Poland").toBuilder()
+            // set same start time for equality comparison
+            .startTime(game2.startTime())
+            .build();
 
     // total score of game1 (1) is greater than game2 (0)
     assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game1, game2)).isGreaterThan(0);
