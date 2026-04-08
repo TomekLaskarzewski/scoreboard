@@ -99,13 +99,14 @@ public class Game {
   private final Instant startTime = Instant.now();
 
   /**
-   * Comparator for sorting games by total score in ascending order.
+   * Comparator for sorting games by total score in descending order.
    *
-   * <p>If total scores are equal, games are further ordered by start time in ascending order.
+   * <p>If total scores are equal, games are further ordered by start time in descending order.
    */
-  public static final Comparator<Game> TOTAL_SCORE_COMPARATOR_ASC =
+  public static final Comparator<Game> TOTAL_SCORE_COMPARATOR_DESC =
       Comparator.comparing(Game::totalScore)
-          .thenComparing(Game::startTime);
+              .thenComparing(Game::startTime)
+              .reversed();
 
   /**
    * Creates a new game with initial score {@code 0 - 0}.

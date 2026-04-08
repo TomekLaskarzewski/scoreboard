@@ -30,25 +30,23 @@ class GameTest {
     Game game1 = Game.create("Poland", "Norway");
     Game game2 = Game.create("Poland", "Norway");
     Game game3 = Game.create("Norway", "Poland");
-    assertThat(game1)
-        .isEqualTo(game2)
-        .isNotEqualTo(game3);
+    assertThat(game1).isEqualTo(game2).isNotEqualTo(game3);
   }
 
   @Test
   void shouldProvideGameComparatorOnTotalScore() {
-    Game game1 = Game.create("Poland", "Norway")
-        .updateScore(1,0);
+    Game game1 = Game.create("Poland", "Norway").updateScore(1, 0);
     Game game2 = Game.create("Poland", "Norway");
-    Game game3 = Game.create("Norway", "Poland").toBuilder()
+    Game game3 =
+        Game.create("Norway", "Poland").toBuilder()
             // set same start time for equality comparison
             .startTime(game2.startTime())
             .build();
 
     // total score of game1 (1) is greater than game2 (0)
-    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game1, game2)).isGreaterThan(0);
-    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game2, game1)).isLessThan(0);
-    assertThat(Game.TOTAL_SCORE_COMPARATOR_ASC.compare(game2, game3)).isZero();
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_DESC.compare(game1, game2)).isLessThan(0);
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_DESC.compare(game2, game1)).isGreaterThan(0);
+    assertThat(Game.TOTAL_SCORE_COMPARATOR_DESC.compare(game2, game3)).isZero();
   }
 
   @ParameterizedTest
@@ -81,10 +79,12 @@ class GameTest {
   }
 
   @ParameterizedTest
-  @CsvSource(value = {"-1:0", "0:-1", "0:0"}, delimiter = ':')
+  @CsvSource(
+      value = {"-1:0", "0:-1", "0:0"},
+      delimiter = ':')
   void shouldRejectUpdateWhichReduceScore(int homeTeamScore, int awayTeamScore) {
     Game game = Game.create("Poland", "Norway").updateScore(1, 1);
     assertThatThrownBy(() -> game.updateScore(homeTeamScore, awayTeamScore))
-      .isInstanceOf(InvalidScoreException.class);
+        .isInstanceOf(InvalidScoreException.class);
   }
 }

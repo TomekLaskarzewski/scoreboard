@@ -163,7 +163,7 @@ public class Scoreboard {
    *
    * <p>Ordering rules:
    * <ul>
-   *   <li>Higher total score comes first</li>
+   *   <li>The higher total score comes first</li>
    *   <li>If scores are equal, the most recently started game comes first</li>
    * </ul>
    *
@@ -180,7 +180,6 @@ public class Scoreboard {
    * @return ordered snapshot of active games
    */
   public List<Game> gamesByTotalScore() {
-    return activeGames.values().stream().sorted(Game.TOTAL_SCORE_COMPARATOR_ASC).toList()
-        .reversed();
+    return activeGames.values().stream().sorted(Game.TOTAL_SCORE_COMPARATOR_DESC).toList();
   }
 }
